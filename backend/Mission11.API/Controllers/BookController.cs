@@ -16,14 +16,21 @@ namespace Mission11.API.Controllers
         }
 
         [HttpGet("AllBooks")]
-        public IActionResult GetBooks(int pageSize = 5, int pageNum = 1) 
+        public IActionResult GetBooks(int pageSize = 5, int pageNum = 1,[FromQuery] List<string> bookTypes = null) 
         {
-            var list = _bookContext.Books
+            var query = _bookContext.Books.AsQueryable();
+
+            if (bookTypes != null && bookTypes.Any())
+            {
+                query = query.Where(b => bookTypes.Contains(b.Category));
+            }
+
+            var totalNumBooks = query.Count();
+
+            var list = query
                 .Skip((pageNum - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
-
-            var totalNumBooks = _bookContext.Books.Count();
 
             var totalList = new 
             {
@@ -35,14 +42,21 @@ namespace Mission11.API.Controllers
         }
 
         [HttpGet("BooksAsc")]
-        public IActionResult GetSortedBooksAsc(int pageSize = 5, int pageNum = 1)
+        public IActionResult GetSortedBooksAsc(int pageSize = 5, int pageNum = 1, [FromQuery] List<string> bookTypes = null)
         {
-            var list = _bookContext.Books.OrderBy(x => x.Title)
+            var query = _bookContext.Books.AsQueryable();
+
+            if (bookTypes != null && bookTypes.Any())
+            {
+                query = query.Where(b => bookTypes.Contains(b.Category));
+            }
+
+            var totalNumBooks = query.Count();
+
+            var list = query.OrderBy(x => x.Title)
                 .Skip((pageNum-1)*pageSize)
                 .Take(pageSize)
                 .ToList();
-
-            var totalNumBooks = _bookContext.Books.Count();
 
             var totalList = new
             {
@@ -54,14 +68,21 @@ namespace Mission11.API.Controllers
         }
 
         [HttpGet("BooksDesc")]
-        public IActionResult GetSortedBooksDesc(int pageSize = 5, int pageNum = 1)
+        public IActionResult GetSortedBooksDesc(int pageSize = 5, int pageNum = 1, [FromQuery] List<string> bookTypes = null)
         {
-            var list = _bookContext.Books.OrderByDescending(x => x.Title)
+            var query = _bookContext.Books.AsQueryable();
+
+            if (bookTypes != null && bookTypes.Any())
+            {
+                query = query.Where(b => bookTypes.Contains(b.Category));
+            }
+
+            var totalNumBooks = query.Count();
+
+            var list = query.OrderByDescending(x => x.Title)
                 .Skip((pageNum - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
-            
-            var totalNumBooks = _bookContext.Books.Count();
 
             var totalList = new
             {
@@ -70,6 +91,16 @@ namespace Mission11.API.Controllers
             };
 
             return Ok(totalList);
+        }
+
+        [HttpGet("GetBookTypes")]
+        public IActionResult GetBookTypes () 
+        {
+            var bookTypes = _bookContext.Books
+                .Select(p => p.Category)
+                .Distinct()
+                .ToList();
+            return Ok(bookTypes);
         }
     }
 }

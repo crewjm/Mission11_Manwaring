@@ -1,18 +1,35 @@
 import { useEffect, useState } from 'react';
-import { Book } from './types/Book';
+import { Book } from '../types/Book';
+import { UseCart } from '../context/CartContext';
+import { CartItem } from '../types/CartItem';
+//test
 
-function BookList() {
+function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   const [books, setBooks] = useState<Book[]>([]);
   const [pageSize, setPageSize] = useState<number>(5);
   const [pageNum, setPageNum] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [sortOrder, setSortOrder] = useState<string>('AllBooks');
+  const { addToCart } = UseCart();
+
+  const handleAddToCart = (b: Book) => {
+    const newItem: CartItem = {
+      bookID: Number(b.bookID),
+      title: b.title || 'No Book Found',
+      price: Number(b.price),
+      quantity: 1,
+    };
+    addToCart(newItem);
+  };
 
   useEffect(() => {
     const fetchBooks = async () => {
+      const categoryParams = selectedCategories
+        .map((cat) => `bookTypes=${encodeURIComponent(cat)}`)
+        .join('&');
       const response = await fetch(
-        `https://localhost:3400/Book/${sortOrder}?pageSize=${pageSize}&pageNum=${pageNum}`
+        `https://localhost:3400/Book/${sortOrder}?pageSize=${pageSize}&pageNum=${pageNum}${selectedCategories.length ? `&${categoryParams}` : ''}`
       );
       const data = await response.json();
       setBooks(data.books);
@@ -21,12 +38,10 @@ function BookList() {
     };
 
     fetchBooks();
-  }, [pageSize, pageNum, totalItems, sortOrder]);
+  }, [pageSize, pageNum, totalItems, sortOrder, selectedCategories]);
 
   return (
     <>
-      <h1>Book List</h1>
-      <br />
       {books.map((b) => (
         <div id="bookCard" className="card" key={b.bookID}>
           <h3 className="card-title">{b.title}</h3>
@@ -48,9 +63,15 @@ function BookList() {
                 <strong>Number of Pages:</strong> {b.pageCount}
               </li>
               <li>
-                <strong>Price:</strong> {b.price}
+                <strong>Price:</strong> ${b.price}
               </li>
             </ul>
+            <button
+              className="btn btn-success"
+              onClick={() => handleAddToCart(b)}
+            >
+              Add to Cart
+            </button>
           </div>
         </div>
       ))}
