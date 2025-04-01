@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Book } from '../types/Book';
 import { UseCart } from '../context/CartContext';
 import { CartItem } from '../types/CartItem';
-//test
+import { Tooltip } from 'bootstrap'; // Import Tooltip from Bootstrap
 
+// test
 function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   const [books, setBooks] = useState<Book[]>([]);
   const [pageSize, setPageSize] = useState<number>(5);
@@ -40,6 +41,16 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
     fetchBooks();
   }, [pageSize, pageNum, totalItems, sortOrder, selectedCategories]);
 
+  // Initialize Bootstrap tooltips when the component mounts
+  useEffect(() => {
+    const tooltipTriggerList = [].slice.call(
+      document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new Tooltip(tooltipTriggerEl); // Initialize each tooltip
+    });
+  }, []); // Empty dependency array to run only once when the component mounts
+
   return (
     <>
       {books.map((b) => (
@@ -68,6 +79,8 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
             </ul>
             <button
               className="btn btn-success"
+              data-bs-toggle="tooltip" // Add Tooltip data attribute
+              title="Click to add this book to your cart"
               onClick={() => handleAddToCart(b)}
             >
               Add to Cart
