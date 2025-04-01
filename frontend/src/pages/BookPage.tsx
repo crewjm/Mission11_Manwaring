@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Welcome from "../Components/Welcome";
-import CategoryFilter from "../Components/CategoryFilter";
-import BookList from "../Components/BookList";
-import CartSummary from "../Components/CartSummary";
+import Welcome from "../components/WelcomeHere";
+import CategoryFilter from "../components/CategoryFilter";
+import BookList from "../components/BookList";
+import CartSummary from "../components/CartSummary";
 
 function BookPage() {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
