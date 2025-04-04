@@ -3,16 +3,19 @@ import { Book } from '../types/Book';
 import { UseCart } from '../context/CartContext';
 import { CartItem } from '../types/CartItem';
 import { Tooltip } from 'bootstrap'; // Import Tooltip from Bootstrap
+import { fetchBooks } from '../api/BooksAPI';
+import Pagination from './Pagination';
 
 // test
 function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   const [books, setBooks] = useState<Book[]>([]);
   const [pageSize, setPageSize] = useState<number>(5);
   const [pageNum, setPageNum] = useState<number>(1);
-  const [totalItems, setTotalItems] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [sortOrder, setSortOrder] = useState<string>('AllBooks');
   const { addToCart } = UseCart();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const handleAddToCart = (b: Book) => {
     const newItem: CartItem = {
@@ -25,21 +28,25 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   };
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      const categoryParams = selectedCategories
-        .map((cat) => `bookTypes=${encodeURIComponent(cat)}`)
-        .join('&');
-      const response = await fetch(
-        `https://localhost:3400/Book/${sortOrder}?pageSize=${pageSize}&pageNum=${pageNum}${selectedCategories.length ? `&${categoryParams}` : ''}`
-      );
-      const data = await response.json();
-      setBooks(data.books);
-      setTotalItems(data.totalNumBooks);
-      setTotalPages(Math.ceil(totalItems / pageSize));
-    };
+    const loadBooks = async () => {
+        try{
+          setLoading(true);
+          const data = await fetchBooks(pageSize, pageNum, selectedCategories, sortOrder);
+          setBooks(data.books);
+          setTotalPages(Math.ceil(data.totalNumBooks / pageSize));
+        }
+        catch (error) {
+          setError((error as Error).message);}
+          finally{
+            setLoading(false);
+          }
+        };
+      
+    loadBooks();
+  }, [pageSize, pageNum, sortOrder, selectedCategories]);
 
-    fetchBooks();
-  }, [pageSize, pageNum, totalItems, sortOrder, selectedCategories]);
+  if (loading) return <p>Loading books now!</p>
+  if (error) return <p className='text-red-500'>Error: {error}</p>
 
   // Initialize Bootstrap tooltips when the component mounts
   useEffect(() => {
@@ -51,98 +58,37 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
     });
   }, []); // Empty dependency array to run only once when the component mounts
 
-  return (
+  return(
     <>
-      {books.map((b) => (
-        <div id="bookCard" className="card" key={b.bookID}>
-          <h3 className="card-title">{b.title}</h3>
-          <div className="card-body">
-            <ul className="list-unstyled">
-              <li>
-                <strong>Author:</strong> {b.author}
-              </li>
-              <li>
-                <strong>Publisher:</strong> {b.publisher}
-              </li>
-              <li>
-                <strong>ISBN:</strong> {b.isbn}
-              </li>
-              <li>
-                <strong>Category:</strong> {b.category}
-              </li>
-              <li>
-                <strong>Number of Pages:</strong> {b.pageCount}
-              </li>
-              <li>
-                <strong>Price:</strong> ${b.price}
-              </li>
-            </ul>
-            <button
-              className="btn btn-success"
-              data-bs-toggle="tooltip" // Add Tooltip data attribute
-              title="Click to add this book to your cart"
-              onClick={() => handleAddToCart(b)}
-            >
-              Add to Cart
-            </button>
-          </div>
-        </div>
-      ))}
-      <button disabled={pageNum === 1} onClick={() => setPageNum(pageNum - 1)}>
-        Previous
-      </button>
-
-      {[...Array(totalPages)].map((_, i) => (
-        <button
-          key={i + 1}
-          onClick={() => setPageNum(i + 1)}
-          disabled={pageNum === i + 1}
-        >
-          {i + 1}
-        </button>
-      ))}
-
-      <button
-        disabled={pageNum === totalPages}
-        onClick={() => setPageNum(pageNum + 1)}
-      >
-        Next
-      </button>
-
-      <br />
-      <label>
-        Sort by:
-        <select
-          className="form-select w-auto d-inline-block"
-          value={sortOrder}
-          onChange={(e) => {
-            setSortOrder(e.target.value);
-            setPageNum(1);
-          }}
-        >
-          <option value="AllBooks">Unsorted</option>
-          <option value="BooksAsc">A-Z</option>
-          <option value="BooksDesc">Z-A</option>
-        </select>
-      </label>
-
-      <br />
-      <label>
-        Results per page:
-        <select
-          value={pageSize}
-          onChange={(p) => {
-            setPageSize(Number(p.target.value));
-            setPageNum(1);
-          }}
-        >
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="15">15</option>
-        </select>
-      </label>
+        {books.map((b) =>
+            <div id="bookCard" className="card" key={b.bookID}> 
+                <h3 className="card-title">{b.title}</h3>
+                <div className="card-body">
+                    <ul className="list-unstyled">
+                        <li><strong>Author:</strong> {b.author}</li>
+                        <li><strong>Publisher:</strong> {b.publisher}</li>
+                        <li><strong>ISBN:</strong> {b.isbn}</li>
+                        <li><strong>Category:</strong> {b.category}</li>
+                        <li><strong>Number of Pages:</strong> {b.pageCount}</li>
+                        <li><strong>Price:</strong> ${b.price}</li>
+                    </ul>
+                    <button className="btn btn-success" onClick={() => handleAddToCart(b)}>Add to Cart</button>
+                </div>
+            </div>
+        )}
+        <Pagination 
+                    currentPage={pageNum}
+                    totalPages={totalPages}
+                    pageSize={pageSize}
+                    sortOrder={sortOrder}
+                    onPageChange={setPageNum}
+                    onPageSizeChange={(newSize) => {
+                        setPageSize(newSize);
+                        setPageNum(1);
+                    }}
+                    onSortOrderChange={setSortOrder}/>
     </>
-  );
+);
 }
 
 export default BookList;
