@@ -19,7 +19,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactAppBlah",
         policy =>
         {
-            policy.WithOrigins("http://localhost:4400")
+            policy.WithOrigins("http://localhost:4400", "https://calm-tree-0f3c6441e.6.azurestaticapps.net")
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
@@ -33,9 +33,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(("AllowReactAppBlah"));
-
 app.UseHttpsRedirection();
+
+app.UseCors(("AllowReactAppBlah"));
 
 app.UseAuthorization();
 
