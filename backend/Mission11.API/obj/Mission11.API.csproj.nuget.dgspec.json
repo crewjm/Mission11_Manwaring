@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/crewmanwaring/Desktop/Mission11/backend/Mission11.API/Mission11.API.csproj": {}
+    "/Users/crewmanwaring/Desktop/Mission11_Manwaring/backend/Mission11.API/Mission11.API.csproj": {}
   },
   "projects": {
-    "/Users/crewmanwaring/Desktop/Mission11/backend/Mission11.API/Mission11.API.csproj": {
+    "/Users/crewmanwaring/Desktop/Mission11_Manwaring/backend/Mission11.API/Mission11.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/crewmanwaring/Desktop/Mission11/backend/Mission11.API/Mission11.API.csproj",
+        "projectUniqueName": "/Users/crewmanwaring/Desktop/Mission11_Manwaring/backend/Mission11.API/Mission11.API.csproj",
         "projectName": "Mission11.API",
-        "projectPath": "/Users/crewmanwaring/Desktop/Mission11/backend/Mission11.API/Mission11.API.csproj",
+        "projectPath": "/Users/crewmanwaring/Desktop/Mission11_Manwaring/backend/Mission11.API/Mission11.API.csproj",
         "packagesPath": "/Users/crewmanwaring/.nuget/packages/",
-        "outputPath": "/Users/crewmanwaring/Desktop/Mission11/backend/Mission11.API/obj/",
+        "outputPath": "/Users/crewmanwaring/Desktop/Mission11_Manwaring/backend/Mission11.API/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/crewmanwaring/.nuget/NuGet/NuGet.Config"
@@ -37,7 +37,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -67,6 +68,20 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.13, 8.0.13]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.osx-arm64",
+              "version": "[8.0.13, 8.0.13]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.13, 8.0.13]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -75,7 +90,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.406/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/Users/crewmanwaring/.dotnet/sdk/9.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

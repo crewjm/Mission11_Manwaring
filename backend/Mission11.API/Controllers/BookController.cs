@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Mission11.API.Data;
+using System.Linq;
 
 namespace Mission11.API.Controllers
 {
@@ -8,99 +9,103 @@ namespace Mission11.API.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
-        private BookDbContext _bookContext;
+        // Dependency-injected database context
+        private readonly BookDbContext _context;
 
-        public BookController(BookDbContext temp) 
-        { 
-            _bookContext = temp;
+        public BookController(BookDbContext dbContext)
+        {
+            _context = dbContext;
         }
 
+        // Returns all books (optionally filtered by category)
         [HttpGet("AllBooks")]
-        public IActionResult GetBooks(int pageSize = 5, int pageNum = 1,[FromQuery] List<string> bookTypes = null) 
+        public IActionResult GetAllBooks(
+            int pageSize = 5, 
+            int pageNum = 1, 
+            [FromQuery] List<string>? bookTypes = null)
         {
-            var query = _bookContext.Books.AsQueryable();
+            IQueryable<Book> query = _context.Books;
 
-            if (bookTypes != null && bookTypes.Any())
+            // Filter by category if categories are passed
+            if (bookTypes?.Any() == true)
             {
-                query = query.Where(b => bookTypes.Contains(b.Category));
+                query = query.Where(book => bookTypes.Contains(book.Category));
             }
 
-            var totalNumBooks = query.Count();
+            int totalBooks = query.Count();
+            var pagedBooks = query
+                                .Skip((pageNum - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToList();
 
-            var list = query
-                .Skip((pageNum - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            var totalList = new 
+            var result = new
             {
-                Books = list, 
-                TotalNumBooks = totalNumBooks
+                Books = pagedBooks,
+                TotalNumBooks = totalBooks
             };
 
-            return Ok(totalList);
+            return Ok(result);
         }
 
+        // Returns books sorted alphabetically by title (A-Z)
         [HttpGet("BooksAsc")]
-        public IActionResult GetSortedBooksAsc(int pageSize = 5, int pageNum = 1, [FromQuery] List<string> bookTypes = null)
+        public IActionResult GetBooksAscending(
+            int pageSize = 5, 
+            int pageNum = 1, 
+            [FromQuery] List<string>? bookTypes = null)
         {
-            var query = _bookContext.Books.AsQueryable();
+            var query = _context.Books.AsQueryable();
 
-            if (bookTypes != null && bookTypes.Any())
+            if (bookTypes?.Any() == true)
             {
-                query = query.Where(b => bookTypes.Contains(b.Category));
+                query = query.Where(book => bookTypes.Contains(book.Category));
             }
 
-            var totalNumBooks = query.Count();
+            int totalBooks = query.Count();
+            var pagedSorted = query
+                                .OrderBy(book => book.Title)
+                                .Skip((pageNum - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToList();
 
-            var list = query.OrderBy(x => x.Title)
-                .Skip((pageNum-1)*pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            var totalList = new
-            {
-                Books = list,
-                TotalNumBooks = totalNumBooks
-            };
-
-            return Ok(totalList);
+            return Ok(new { Books = pagedSorted, TotalNumBooks = totalBooks });
         }
 
+        // Returns books sorted in reverse alphabetical order (Z-A)
         [HttpGet("BooksDesc")]
-        public IActionResult GetSortedBooksDesc(int pageSize = 5, int pageNum = 1, [FromQuery] List<string> bookTypes = null)
+        public IActionResult GetBooksDescending(
+            int pageSize = 5, 
+            int pageNum = 1, 
+            [FromQuery] List<string>? bookTypes = null)
         {
-            var query = _bookContext.Books.AsQueryable();
+            var query = _context.Books.AsQueryable();
 
-            if (bookTypes != null && bookTypes.Any())
+            if (bookTypes?.Any() == true)
             {
-                query = query.Where(b => bookTypes.Contains(b.Category));
+                query = query.Where(book => bookTypes.Contains(book.Category));
             }
 
-            var totalNumBooks = query.Count();
+            int totalBooks = query.Count();
+            var pagedSorted = query
+                                .OrderByDescending(book => book.Title)
+                                .Skip((pageNum - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToList();
 
-            var list = query.OrderByDescending(x => x.Title)
-                .Skip((pageNum - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            var totalList = new
-            {
-                Books = list,
-                TotalNumBooks = totalNumBooks
-            };
-
-            return Ok(totalList);
+            return Ok(new { Books = pagedSorted, TotalNumBooks = totalBooks });
         }
 
+        // Returns a distinct list of book categories
         [HttpGet("GetBookTypes")]
-        public IActionResult GetBookTypes () 
+        public IActionResult GetUniqueBookCategories()
         {
-            var bookTypes = _bookContext.Books
-                .Select(p => p.Category)
-                .Distinct()
-                .ToList();
-            return Ok(bookTypes);
+            var distinctCategories = _context.Books
+                                        .Select(book => book.Category)
+                                        .Distinct()
+                                        .ToList();
+
+            return Ok(distinctCategories);
         }
     }
 }
+

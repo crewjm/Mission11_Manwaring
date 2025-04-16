@@ -1,56 +1,62 @@
 import { useEffect, useState } from "react";
-import './CategoryFilter.css'
+import './CategoryFilter.css';
 
 function CategoryFilter({
-    selectedCategories, setSelectedCategories
+  selectedCategories,
+  setSelectedCategories,
 }: {
-    selectedCategories : string[];
-    setSelectedCategories : (categories: string[]) => void;
-})
-{
-    const [categories, setCategories] = useState<string[]>([]);
+  selectedCategories: string[];
+  setSelectedCategories: (categories: string[]) => void;
+}) {
+  const [allCategories, setAllCategories] = useState<string[]>([]);
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try{
-                const response = await fetch('https://localhost:3400/Book/GetBookTypes');
-                const data = await response.json();
-                setCategories(data);
-            }
-            catch (error){
-                console.error('Error fetching categories', error)
-            }
-            
-        };
+  // Fetch all available book categories on component mount
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const response = await fetch('https://localhost:3400/Book/GetBookTypes');
+        const data = await response.json();
+        setAllCategories(data);
+      } catch (err) {
+        console.error('Failed to fetch categories:', err);
+      }
+    }
 
-        fetchCategories();
-    }, []);
+    loadCategories();
+  }, []);
 
-    function handleCheckboxChange({target}: {target: HTMLInputElement}){
-        const updatedCategories = selectedCategories.includes(target.value) ? selectedCategories.filter(x => x !== target.value) : [...selectedCategories, target.value];
+  // Handles changes to each category checkbox
+  const handleToggleCategory = ({ target }: { target: HTMLInputElement }) => {
+    const isSelected = selectedCategories.includes(target.value);
+    const updatedSelection = isSelected
+      ? selectedCategories.filter((cat) => cat !== target.value)
+      : [...selectedCategories, target.value];
 
-        setSelectedCategories(updatedCategories);
-    };
+    setSelectedCategories(updatedSelection);
+  };
 
-    return(
-        <div className="category-filter">
-            <h5>Categories Here</h5>
-            <div className="category-list">
-                {categories.map((c) => (
-                    <div key={c} className="category-item">
-                        <input 
-                            type="checkbox" 
-                            id={c} 
-                            value={c} 
-                            className="category-checkbox"
-                            onChange={handleCheckboxChange}
-                        />
-                        <label htmlFor={c} className="category-text">{c}</label>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
+  return (
+    <div className="filter-wrapper">
+      <h5>Select Category</h5>
+      <div className="filter-options">
+        {allCategories.map((cat) => (
+          <div className="filter-option" key={cat}>
+            <input
+              type="checkbox"
+              id={`filter-${cat}`}
+              value={cat}
+              checked={selectedCategories.includes(cat)}
+              onChange={handleToggleCategory}
+              className="filter-checkbox"
+            />
+            <label htmlFor={`filter-${cat}`} className="filter-label">
+              {cat}
+            </label>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default CategoryFilter;

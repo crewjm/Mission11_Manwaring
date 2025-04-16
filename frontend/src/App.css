@@ -1,3 +1,10 @@
+/* Set light blue background across the whole page */
+body {
+  background-color: #99c2ff !important; /* soft light blue */
+  margin: 0;
+  font-family: sans-serif;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -18,23 +25,10 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
 .card {
   padding: 2em;
+  background-color: #d3d3d3 !important; /* light grey */
+  border-radius: 8px; /* optional to match card styling */
 }
 
 .read-the-docs {
