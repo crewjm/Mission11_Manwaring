@@ -9,6 +9,8 @@ function CategoryFilter({
   setSelectedCategories: (categories: string[]) => void;
 }) {
   const [categories, setCategories] = useState<string[]>([]);
+// Fetch all available book categories on component mount
+
 
   useEffect(() => {
     const fetchCategories = async () => {

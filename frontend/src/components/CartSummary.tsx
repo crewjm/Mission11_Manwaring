@@ -5,33 +5,36 @@ function CartSummary() {
   const navigate = useNavigate();
   const { cart } = UseCart();
 
-  const totalAmount = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  // Calculate total cost of all items
+  const amountTotal = cart.reduce(
+    (acc, item) => acc + item.price * item.quantity,
     0
   );
 
-  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+  // Calculate number of items in cart
+  const quantityTotal = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <div
+      onClick={() => navigate('/cart')}
       style={{
         position: 'fixed',
-        top: '10px',
-        right: '20px',
-        background: '#f8f9fa',
-        padding: '10px 15px',
-        borderRadius: '8px',
-        cursor: 'pointer',
+        top: '12px',
+        right: '18px',
+        backgroundColor: '#f0f0f5',
+        padding: '12px 16px',
+        borderRadius: '10px',
         display: 'flex',
         alignItems: 'center',
-        boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-        fontSize: '16px',
+        boxShadow: '0 3px 6px rgba(0, 0, 0, 0.15)',
+        cursor: 'pointer',
+        fontSize: '15px',
+        transition: 'background-color 0.2s ease',
       }}
-      onClick={() => navigate('/cart')}
     >
-      🛒{' '}
+      <span style={{ marginRight: '8px' }}>🛒</span>
       <strong>
-        {totalQuantity} items - ${totalAmount.toFixed(2)}
+        {quantityTotal} items – ${amountTotal.toFixed(2)}
       </strong>
     </div>
   );

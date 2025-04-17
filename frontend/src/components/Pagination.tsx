@@ -36,7 +36,7 @@ const Pagination = ({currentPage, totalPages, pageSize, sortOrder, onPageChange,
                 onPageChange(1);
                 }}
             >
-                <option value="AllBooks">Unsorted</option>
+                <option value="AllBooks">Not Sorted</option>
                 <option value="BooksAsc">A-Z</option>
                 <option value="BooksDesc">Z-A</option>
             </select>
@@ -44,7 +44,7 @@ const Pagination = ({currentPage, totalPages, pageSize, sortOrder, onPageChange,
 
             <br />
             <label>
-                Results per page:
+                Total Results:
                 <select 
                     value={pageSize} 
                     onChange={(p) => {onPageSizeChange(Number(p.target.value));

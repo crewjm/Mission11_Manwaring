@@ -53,7 +53,7 @@ const AdminBooksPage = () => {
 
   return (
     <div>
-      <h1>Administrator - Books</h1>
+      <h1>Administrator : Books</h1>
 
       {!showForm && (
         <button
